@@ -1,9 +1,15 @@
 "use client";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navLinks = [
+type NavLink = {
+  href: string;
+  label: string;
+};
+
+const navLinks: NavLink[] = [
   {
     href: "/",
     label: "Home",
@@ -13,10 +19,6 @@ const navLinks = [
     label: "Posts",
   },
   {
-    href: "/yourPosts",
-    label: "Your posts",
-  },
-  {
     href: "/create-post",
     label: "Create post",
   },
@@ -24,6 +26,20 @@ const navLinks = [
 
 const Header = () => {
   const pathname = usePathname();
+
+  const { user } = useKindeBrowserClient();
+
+  const authenticatedNavLinks: NavLink[] = [
+    ...navLinks,
+    ...(user
+      ? [
+          {
+            href: "/yourPosts",
+            label: "Your posts",
+          },
+        ]
+      : []),
+  ];
 
   return (
     <header className="flex justify-between items-center py-4 px-7 border-b">
@@ -39,7 +55,7 @@ const Header = () => {
 
       <nav>
         <ul className="flex gap-x-5 text-[14px]">
-          {navLinks.map((link) => (
+          {authenticatedNavLinks.map((link) => (
             <li className="text-black" key={link.href}>
               <Link
                 className={`${
